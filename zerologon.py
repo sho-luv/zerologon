@@ -3,15 +3,15 @@
 ############################################
 # by Leon Johnson
 #
-# This is a modified project foked from:
+# This is a modified project forked from:
 # https://github.com/dirkjanm/CVE-2020-1472
 #
 # It is used to identify and/or exploit
 # CVE-2020-1472 aka zerologon.
 # 
-# If exploit choosen, it will change the system account password 
-# and dump the ntds.dit, then it restore the system account password
-# after it dumps all the password hashes
+# If exploit is choosen, it will change the system account password to a blank value
+# and dump the ntds.dit, then it will restore the system account password by calling 
+# restore script after it dumps all the password hashes
 # 
 # Resource:
 #   https://www.secura.com/pathtoimg.php?id=2055
