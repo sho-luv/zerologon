@@ -144,7 +144,8 @@ class ChangeMachinePassword:
         indata = b'\x00' * (512-len(self.__password)) + self.__password + pack('<L', len(self.__password))
         request['ClearNewPassword'] = nrpc.ComputeNetlogonCredentialAES(indata, self.sessionKey)
         result = dce.request(request)
-        print('Changed password back to original value OK')
+        print(LIGHTGREEN+"\n[+] "+NOCOLOR, end = '')
+        print(WHITE+'Changed password back to original value OK'+NOCOLOR)
 
     def update_authenticator(self, plus=10):
         authenticator = nrpc.NETLOGON_AUTHENTICATOR()
